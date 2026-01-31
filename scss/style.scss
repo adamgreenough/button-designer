@@ -594,6 +594,8 @@ main {
       letter-spacing: 0.04em;
       background: rgba(0, 0, 0, 0.15);
       border-bottom: 1px solid transparent;
+      border-radius: var(--radius-md);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
 
       .material-symbols-outlined {
         font-size: 1rem;
@@ -621,6 +623,7 @@ main {
       border-bottom: 1px solid var(--border-subtle);
       color: var(--text-secondary);
       background: rgba(0, 0, 0, 0.25);
+      border-radius: var(--radius-md) var(--radius-md) 0 0;
 
       .material-symbols-outlined {
         opacity: 1;
@@ -629,6 +632,12 @@ main {
 
     .sub-control-group {
       padding: 1rem;
+      background: rgba(0, 0, 0, 0.14);
+      border-top: 1px solid var(--border-subtle);
+
+      &:last-child {
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+      }
     }
   }
 
