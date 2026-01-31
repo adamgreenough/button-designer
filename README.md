@@ -32,3 +32,12 @@ This project is licensed under the [Creative Commons Attribution–NonCommercial
 Commercial use includes, but is not limited to: selling access to this tool, bundling it into paid products or services, or offering a hosted or SaaS version for profit.
 
 For the full license text, see: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+## Third-party Assets
+
+This project makes use of the following third-party assets:
+
+- **Google Material Symbols** by Google
+  - License: [Apache License 2.0](https://github.com/google/material-design-icons/blob/master/LICENSE)
+  - Used for the icon library within the designer.
+  - [View source](https://fonts.google.com/icons)
