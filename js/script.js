@@ -686,12 +686,32 @@ const materialIcons = [
 let backgroundGif = { hasAnimated: false, data: null, file: null };
 let iconGif = { hasAnimated: false, data: null, file: null };
 
+// Matomo event tracking helper
+let isInitializing = true; // Flag to prevent tracking during page load
+
+function trackEvent(category, action, name = null, value = null) {
+	if (isInitializing) return; // Don't track during initialization
+	if (typeof _paq !== 'undefined') {
+		// Use trackEvent with a callback to ensure it's queued
+		if (name && value) {
+			_paq.push(['trackEvent', category, action, name, value]);
+		} else if (name) {
+			_paq.push(['trackEvent', category, action, name]);
+		} else {
+			_paq.push(['trackEvent', category, action]);
+		}
+		// Force send immediately for reliability on mobile
+		_paq.push(['enableLinkTracking']);
+	}
+}
+
 // Banner dismiss function
 function dismissBanner() {
 	const banner = document.getElementById('announcementBanner');
 	if (banner) {
 		banner.classList.add('hidden');
 		localStorage.setItem('bannerDismissed', 'true');
+		trackEvent('UI', 'Dismiss Banner');
 	}
 }
 
@@ -730,6 +750,7 @@ function controlTextFont() {
 	const textPreview = document.getElementById('textPreview');
 	textPreview.style.fontFamily = '"' + textFont.value + '"';
 	localStorage.setItem('textFont', textFont.value);
+	trackEvent('Design', 'Change Font', textFont.value);
 }
 
 // Advanced text options
@@ -782,6 +803,9 @@ function controlTextShadow() {
 			break;
 	}
 	localStorage.setItem('textShadow', textShadow);
+	if(textShadow !== 'none') {
+		trackEvent('Design', 'Text Shadow', textShadow);
+	}
 }
 
 // Border controls
@@ -799,11 +823,120 @@ function controlBorderColour() {
 	localStorage.setItem('borderColour', borderColour.value);
 }
 
+function controlBorderRadius() {
+	const radius = document.getElementById('borderRadiusControl').value;
+	const previewButtonContainer = document.getElementById('preview-button-container');
+	const previewButton = document.getElementById('preview-button');
+	const buttonBackground = document.getElementById('buttonBackground');
+	const buttonOverlay = document.getElementById('buttonOverlay');
+	
+	// Apply radius value (handle percentage or pixel values)
+	const radiusValue = radius.includes('%') ? radius : radius + 'px';
+	previewButtonContainer.style.borderRadius = radiusValue;
+	previewButton.style.borderRadius = radiusValue;
+	buttonBackground.style.borderRadius = radiusValue;
+	buttonOverlay.style.borderRadius = radiusValue;
+	
+	localStorage.setItem('borderRadius', radius);
+}
+
+// Icon effects control
+function controlIconEffects() {
+	const opacity = document.getElementById('iconOpacityControl').value;
+	const rotation = document.getElementById('iconRotationControl').value;
+	const flip = document.getElementById('iconFlipControl').value;
+	const buttonIconInner = document.getElementById('buttonIconInner');
+	
+	// Update opacity display
+	document.getElementById('iconOpacityValue').textContent = Math.round(opacity * 100) + '%';
+	
+	// Apply opacity
+	buttonIconInner.style.opacity = opacity;
+	
+	// Build transform string
+	let transforms = [];
+	
+	if(rotation !== '0') {
+		transforms.push(`rotate(${rotation}deg)`);
+	}
+	
+	switch(flip) {
+		case 'horizontal':
+			transforms.push('scaleX(-1)');
+			break;
+		case 'vertical':
+			transforms.push('scaleY(-1)');
+			break;
+		case 'both':
+			transforms.push('scale(-1, -1)');
+			break;
+	}
+	
+	buttonIconInner.style.transform = transforms.length > 0 ? transforms.join(' ') : 'none';
+	
+	localStorage.setItem('iconOpacity', opacity);
+	localStorage.setItem('iconRotation', rotation);
+	localStorage.setItem('iconFlip', flip);
+	
+	// Track non-default effects
+	if(rotation !== '0') {
+		trackEvent('Design', 'Icon Rotation', rotation);
+	}
+	if(flip !== 'none') {
+		trackEvent('Design', 'Icon Flip', flip);
+	}
+}
+
+// Status badge control
+function controlBadge() {
+	const badge = document.getElementById('badgeControl').value;
+	const position = document.getElementById('badgePositionControl').value;
+	const badgeElement = document.getElementById('buttonBadge');
+	const positionRow = document.getElementById('badgePositionRow');
+	
+	if(badge === 'none') {
+		badgeElement.style.display = 'none';
+		positionRow.style.display = 'none';
+	} else {
+		badgeElement.style.display = 'block';
+		positionRow.style.display = 'block';
+		
+		// Set badge color
+		const colors = {
+			'red': '#ef4444',
+			'green': '#22c55e',
+			'orange': '#f97316',
+			'blue': '#3b82f6',
+			'purple': '#a855f7',
+			'white': '#ffffff'
+		};
+		badgeElement.style.backgroundColor = colors[badge] || '#ef4444';
+		
+		// Add glow effect for visibility
+		badgeElement.style.boxShadow = `0 0 8px ${colors[badge] || '#ef4444'}`;
+		
+		// Set position - more inset to avoid border radius clipping
+		badgeElement.style.top = position.includes('top') ? '14px' : 'auto';
+		badgeElement.style.bottom = position.includes('bottom') ? '14px' : 'auto';
+		badgeElement.style.left = position.includes('left') ? '14px' : 'auto';
+		badgeElement.style.right = position.includes('right') ? '14px' : 'auto';
+	}
+	
+	localStorage.setItem('badge', badge);
+	localStorage.setItem('badgePosition', position);
+	
+	if(badge !== 'none') {
+		trackEvent('Design', 'Badge', badge);
+	}
+}
+
 // Background controls
 function controlBackgroundStyle() {
 	const backgroundStyle = document.getElementById('backgroundStyleControl');
 	const buttonBackground = document.getElementById('buttonBackground');
 	localStorage.setItem('backgroundStyle', backgroundStyle.value);
+	
+	trackEvent('Design', 'Background Style', backgroundStyle.value);
 	
 	// Hide all option panels first
 	document.getElementById('backgroundSolidOptions').style.display = 'none';
@@ -858,6 +991,7 @@ function controlBackgroundStyle() {
 			if(fileInput.files.length > 0) {
 				const file = fileInput.files[0];
 				const reader = new FileReader();
+				trackEvent('Design', 'Upload Background Image', file.type);
 				
 				reader.onload = function(e) {
 					buttonBackground.style.backgroundColor = 'transparent';
@@ -901,6 +1035,7 @@ function controlIconType(md = null) {
 	
 	if(md) {
 		localStorage.setItem('iconMd', md.dataset.iconUrl);
+		trackEvent('Design', 'Select Icon', md.dataset.iconUrl);
 		// Update selected state
 		document.querySelectorAll('#iconGrid .icon').forEach(i => i.classList.remove('selected'));
 		md.classList.add('selected');
@@ -954,6 +1089,7 @@ function controlIconType(md = null) {
 			if(uploadInput.files.length > 0) {
 				const file = uploadInput.files[0];
 				const reader = new FileReader();
+				trackEvent('Design', 'Upload Icon Image', file.type);
 				
 				reader.onload = function(e) {
 					// For SVGs, we need special handling
@@ -986,6 +1122,9 @@ function controlOverlay() {
 	const buttonOverlay = document.getElementById('buttonOverlay');
 	buttonOverlay.src = 'assets/overlays/' + overlay.value;
 	localStorage.setItem('overlay', overlay.value);
+	if(overlay.value !== 'none.png') {
+		trackEvent('Design', 'Change Overlay', overlay.value);
+	}
 }
 
 // Icon search with improved tag matching
@@ -1125,6 +1264,21 @@ function generateIconGrid() {
 	});
 }
 
+// Reset to default settings
+function resetToDefaults() {
+	if(!confirm('Reset all settings to defaults? This will clear your current design.')) {
+		return;
+	}
+	
+	trackEvent('Design', 'Reset to Defaults');
+	
+	// Clear all localStorage
+	localStorage.clear();
+	
+	// Reload the page to apply defaults
+	location.reload();
+}
+
 // Initialize the application
 function init() {
 	// Check banner dismiss state
@@ -1141,6 +1295,7 @@ function init() {
 		'textTransform',
 		'borderWidth',
 		'borderColour',
+		'borderRadius',
 		'backgroundStyle',
 		'backgroundColour',
 		'backgroundColour1',
@@ -1152,7 +1307,12 @@ function init() {
 		'iconPosition',
 		'iconColour',
 		'iconText',
-		'iconType'
+		'iconType',
+		'iconOpacity',
+		'iconRotation',
+		'iconFlip',
+		'badge',
+		'badgePosition'
 	];
 	
 	// Set defaults if not present
@@ -1183,14 +1343,18 @@ function init() {
 	controlTextTransform();
 	controlBorderWidth();
 	controlBorderColour();
+	controlBorderRadius();
 	controlBackgroundStyle();
 	controlOverlay();
 	controlTextShadow();
 	controlIconType();
+	controlIconEffects();
+	controlBadge();
 	
 	// Update range value displays
 	document.getElementById('trackingValue').textContent = document.getElementById('textTrackingControl').value + 'px';
 	document.getElementById('lineHeightValue').textContent = document.getElementById('textLineHeightControl').value;
+	document.getElementById('iconOpacityValue').textContent = Math.round(document.getElementById('iconOpacityControl').value * 100) + '%';
 	
 	// Initialize Choices.js dropdowns
 	const defaultChoices = document.querySelectorAll('[default-choices]');
@@ -1217,6 +1381,13 @@ function init() {
 		fontControl.addEventListener('search', updateFontPreviews, false);
 	}
 	
+	// Enable event tracking after a short delay to ensure Choices.js is fully initialized
+	// and any programmatic change events have fired
+	setTimeout(() => {
+		isInitializing = false;
+		console.log('Event tracking enabled');
+	}, 500);
+	
 	console.log('Button Designer initialized');
 }
 
@@ -1242,6 +1413,7 @@ document.getElementById("download").addEventListener("click", async function() {
 	// Check if we should export as animated GIF based on current selections
 	const activeGif = getActiveAnimatedGif();
 	if(activeGif) {
+		trackEvent('Export', 'Download', 'GIF', exportSize);
 		await exportAnimatedGif(previewButton, filename, activeGif, exportSize);
 		return;
 	}
@@ -1255,6 +1427,9 @@ document.getElementById("download").addEventListener("click", async function() {
 			pixelRatio: pixelRatio
 		});
 		
+		// Track before download to ensure it's sent
+		trackEvent('Export', 'Download', 'PNG', exportSize);
+		
 		const link = document.createElement('a');
 		link.download = `${filename}.png`;
 		link.href = dataUrl;
@@ -1262,6 +1437,7 @@ document.getElementById("download").addEventListener("click", async function() {
 	} catch(error) {
 		console.error('Export error:', error);
 		alert('There was an error exporting the button. Please try again.');
+		trackEvent('Export', 'Error', 'PNG');
 	}
 });
 

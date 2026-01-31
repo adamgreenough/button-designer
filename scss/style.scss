@@ -160,6 +160,10 @@ header {
   overflow: hidden;
   position: relative;
 
+  @media (max-width: 850px) {
+    font-size: 0.55rem;
+  }
+
   &.hidden {
     display: none;
   }
@@ -172,6 +176,10 @@ header {
 
   .banner-text {
     padding: 0.6rem 3rem;
+    
+    @media (max-width: 850px) {
+      padding: 0.3rem 1rem;
+    }
     
     .sep {
       margin: 0 0.5em;
@@ -506,6 +514,19 @@ main {
     font-size: 0.75rem;
     color: var(--text-muted);
     margin-top: 0.4rem;
+
+    &.privacy-hint {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: var(--accent-success);
+      opacity: 0.8;
+      margin-top: 0.5rem;
+
+      .material-symbols-outlined {
+        font-size: 0.9rem;
+      }
+    }
   }
 
   .helper-link {
@@ -935,11 +956,40 @@ main {
     opacity: 0.01;
   }
 
+  // Reset button
+  .reset-btn {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.4);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    pointer-events: auto;
+    z-index: 10;
+
+    .material-symbols-outlined {
+      font-size: 20px;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.8);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+  }
+
   #preview-button-container {
     transform: scale(1.4);
-    border-radius: 15%;
-    overflow: hidden;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    border-radius: 15%;
 
     @media (max-width: 900px) {
       transform: scale(1);
@@ -955,6 +1005,7 @@ main {
     line-height: 1;
     font-weight: bold;
     letter-spacing: -1px;
+    overflow: hidden;
     position: relative;
     display: flex;
     flex-direction: column;
@@ -1005,6 +1056,17 @@ main {
       z-index: 100;
       display: block;
       border-radius: 15%;
+    }
+
+    // Status badge indicator
+    .status-badge {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      z-index: 200;
+      pointer-events: none;
+      border: 2px solid rgba(255, 255, 255, 0.9);
     }
 
     #buttonIcon {

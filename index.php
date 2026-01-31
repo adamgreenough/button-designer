@@ -9,7 +9,7 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 <html lang="en">
 <head>
 	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
 	<title>Button Designer/Key Maker — Stream Deck-compatible (unofficial)</title>
 
@@ -29,7 +29,7 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 	<meta name="twitter:creator" content="@addy_codes">
 	<meta name="twitter:image" content="https://button-designer.addy.codes/card.png">
 
-	<link href="css/style.css?v4" rel="stylesheet">
+	<link href="css/style.css?v10" rel="stylesheet">
 	
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" crossorigin="anonymous">
 	<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js" crossorigin="anonymous"></script>
@@ -77,8 +77,8 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 	
 	<div id="announcementBanner" class="announcement-banner">
 		<div class="banner-content">
-<span class="banner-text"><strong>🎉 Jan 2026 Update:</strong> Animated GIF backgrounds <span class="sep">|</span> 650+ searchable Material icons <span class="sep">|</span> Letter spacing & line height <span class="sep">|</span> Text shadows & transforms <span class="sep">|</span> 144px or 288px HD export <span class="sep">|</span> 25+ Google Fonts</span>
-			<span class="banner-text"><strong>🎉 Jan 2026 Update:</strong> Animated GIF backgrounds <span class="sep">|</span> 650+ searchable Material icons <span class="sep">|</span> Letter spacing & line height <span class="sep">|</span> Text shadows & transforms <span class="sep">|</span> 144px or 288px HD export <span class="sep">|</span> 25+ Google Fonts</span>
+<span class="banner-text"><strong>🆕 Jan 2026 Update:</strong> Animated GIF background support <span class="sep">|</span> 650+ searchable Material icons <span class="sep">|</span> Letter spacing & line height <span class="sep">|</span> Text shadows & transforms <span class="sep">|</span> 144px or 288px HD export <span class="sep">|</span> 25+ Google Fonts 🎉</span>
+			<span class="banner-text"><strong>🆕 Jan 2026 Update:</strong> Animated GIF background support <span class="sep">|</span> 650+ searchable Material icons <span class="sep">|</span> Letter spacing & line height <span class="sep">|</span> Text shadows & transforms <span class="sep">|</span> 144px or 288px HD export <span class="sep">|</span> 25+ Google Fonts 🎉</span>
 		</div>
 		<button class="banner-dismiss" onclick="dismissBanner()" title="Dismiss"><span class="material-symbols-outlined">close</span></button>
 	</div>
@@ -319,11 +319,55 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 							</label>
 							<input type="file" id="iconUploadControl" accept="image/png,image/jpeg,image/svg+xml,image/gif,image/webp" onchange="controlIconType()">
 							<span class="input-hint">Supports: PNG, JPEG, SVG, GIF (inc. animated), WebP</span>
+							<span class="input-hint privacy-hint"><span class="material-symbols-outlined">lock</span> Your images stay private — processed in your browser, never uploaded</span>
 						</div>
 						<a href="https://toolkit.addy.codes/tag/icons/" target="_blank" class="helper-link">
 							<span class="material-symbols-outlined">open_in_new</span>
 							Discover more icons on my Toolkit!
 						</a>
+					</div>
+					
+					<!-- Icon Effects -->
+					<div class="charIconOptions uploadIconOptions mdIconOptions">
+						<details class="sub-details">
+							<summary><span class="material-symbols-outlined">tune</span> Icon Effects</summary>
+							<div class="sub-control-group">
+								<div class="control-row">
+									<label for="iconOpacityControl">
+										<span class="material-symbols-outlined">opacity</span>
+										Opacity
+									</label>
+									<input type="range" id="iconOpacityControl" min="0.1" max="1" step="0.1" value="1" oninput="controlIconEffects()">
+									<span class="range-value" id="iconOpacityValue">100%</span>
+								</div>
+								<div class="control-row">
+									<label for="iconRotationControl">
+										<span class="material-symbols-outlined">rotate_right</span>
+										Rotation
+									</label>
+									<select id="iconRotationControl" default-choices onchange="controlIconEffects()">
+										<option value="0" selected>0°</option>
+										<option value="45">45°</option>
+										<option value="90">90°</option>
+										<option value="180">180°</option>
+										<option value="270">270°</option>
+										<option value="-45">-45°</option>
+									</select>
+								</div>
+								<div class="control-row">
+									<label for="iconFlipControl">
+										<span class="material-symbols-outlined">flip</span>
+										Flip
+									</label>
+									<select id="iconFlipControl" default-choices onchange="controlIconEffects()">
+										<option value="none" selected>None</option>
+										<option value="horizontal">Horizontal</option>
+										<option value="vertical">Vertical</option>
+										<option value="both">Both</option>
+									</select>
+								</div>
+							</div>
+						</details>
 					</div>
 				</div>
 				
@@ -428,6 +472,7 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 							</label>
 							<input type="file" id="backgroundImageControl" accept="image/png,image/jpeg,image/svg+xml,image/gif,image/webp" onchange="controlBackgroundStyle()">
 							<span class="input-hint">Supports: PNG, JPEG, SVG, GIF, WebP</span>
+							<span class="input-hint privacy-hint"><span class="material-symbols-outlined">lock</span> Your images stay private — processed in your browser, never uploaded</span>
 						</div>
 					</div>
 				</div>
@@ -459,6 +504,20 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 							<input id="borderColourControl" type="color" value="#ffffff" oninput="controlBorderColour()">
 						</div>
 					</div>
+					
+					<div class="control-row">
+						<label for="borderRadiusControl">
+							<span class="material-symbols-outlined">rounded_corner</span>
+							Corner Radius
+						</label>
+						<select id="borderRadiusControl" default-choices onchange="controlBorderRadius()">
+							<option value="15%" selected>Default (15%)</option>
+							<option value="0">Square (0px)</option>
+							<option value="5%">Slight (5%)</option>
+							<option value="25%">More Rounded (25%)</option>
+							<option value="50%">Circle (50%)</option>
+						</select>
+					</div>
 				</div>
 			</details>
 			
@@ -473,7 +532,50 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 						</label>
 						<select id="overlayControl" default-choices onchange="controlOverlay()">
 							<option value="none.png" selected>None</option>
-							<option value="gloss-over.png">Gloss</option>
+							<optgroup label="Gloss & Highlights">
+								<option value="gloss-over.png">Gloss</option>
+								<option value="gloss-diagonal.png">Gloss (Diagonal)</option>
+								<option value="spotlight.png">Spotlight</option>
+								<option value="corner-glow.png">Corner Glow</option>
+							</optgroup>
+							<optgroup label="Shadows & Depth">
+								<option value="vignette.png">Vignette</option>
+								<option value="inner-shadow.png">Inner Shadow</option>
+							</optgroup>
+							<optgroup label="Textures">
+								<option value="noise.png">Film Grain</option>
+								<option value="scanlines.png">Scanlines</option>
+								<option value="halftone.png">Halftone</option>
+							</optgroup>
+						</select>
+					</div>
+					
+					<div class="control-row">
+						<label for="badgeControl">
+							<span class="material-symbols-outlined">circle</span>
+							Status Badge
+						</label>
+						<select id="badgeControl" default-choices onchange="controlBadge()">
+							<option value="none" selected>None</option>
+							<option value="red">🔴 Red (Live/Recording)</option>
+							<option value="green">🟢 Green (Active/On)</option>
+							<option value="orange">🟠 Orange (Warning)</option>
+							<option value="blue">🔵 Blue (Info)</option>
+							<option value="purple">🟣 Purple</option>
+							<option value="white">⚪ White</option>
+						</select>
+					</div>
+					
+					<div id="badgePositionRow" class="control-row" style="display: none;">
+						<label for="badgePositionControl">
+							<span class="material-symbols-outlined">drag_indicator</span>
+							Badge Position
+						</label>
+						<select id="badgePositionControl" default-choices onchange="controlBadge()">
+							<option value="top-right" selected>Top Right</option>
+							<option value="top-left">Top Left</option>
+							<option value="bottom-right">Bottom Right</option>
+							<option value="bottom-left">Bottom Left</option>
 						</select>
 					</div>
 				</div>
@@ -502,7 +604,7 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 				</div>
 				<a class="tip-jar" href="https://ko-fi.com/addycodes" target="_blank" rel="noopener noreferrer">
 					<span class="material-symbols-outlined">volunteer_activism</span>
-					Tip jar (Ko-fi)
+					Tip Jar (Ko-fi)
 				</a>
 			</div>
 		</section>
@@ -517,8 +619,12 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 					</div>
 					<div id="textPreview">My Button</div>
 					<img id="buttonOverlay" src="assets/overlays/none.png">
+					<div id="buttonBadge" class="status-badge" style="display: none;"></div>
 				</div>
 			</div>
+			<button id="resetButton" class="reset-btn" onclick="resetToDefaults()" title="Reset to defaults">
+				<span class="material-symbols-outlined">restart_alt</span>
+			</button>
 		</section>
 	</main>
 	
@@ -540,8 +646,9 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 			<li>Click the small arrow in the top right of the icon preview in the icons property pane, click "set from file" and then select your downloaded icon</li>
 		</ul>
 		<h3>Can I save my design for later?</h3>
-		<p>Kind of! This tool stores your most recent design in your browser’s local storage, so it should usually be remembered when you come back on the same device/browser. If you clear your site data/cache, use a different browser/device, or have privacy settings that wipe storage, it may not be available.</p>
-		<h3>App Information</h3>
+		<p>Kind of! This tool stores your most recent design in your browser’s local storage, so it should usually be remembered when you come back on the same device/browser. If you clear your site data/cache, use a different browser/device, or have privacy settings that wipe storage, it may not be available.</p>		<h3>Privacy & Security</h3>
+		<p><strong>100% client-side processing:</strong> Your images are never uploaded to any server. All image processing, compositing, and exporting happens entirely in your browser using JavaScript. Your designs stay completely private on your device.</p>
+		<p>The only data stored is your design settings in your browser's local storage — this never leaves your device. We use privacy-friendly analytics (Matomo) to count page views, but no personal data or images are ever collected or transmitted.</p>		<h3>App Information</h3>
 		<p><strong>Unofficial / independent:</strong> This is a community-made tool for creating button icons that are Stream Deck-compatible. It is not affiliated with, endorsed by, sponsored by, or otherwise approved by Corsair, <a href="https://www.elgato.com/uk/en/s/welcome-to-stream-deck" target="_blank" rel="noopener noreferrer">Elgato</a>, or the Stream Deck brand.</p>
 		<p>“Stream Deck” and “Elgato” are trademarks of their respective owners. They are used here only to describe compatibility and the intended use of the tool.</p>
 		<p>This website does not include or redistribute any Elgato software or proprietary assets — it simply helps you generate image files you can import into the Stream Deck software.</p>
@@ -551,7 +658,7 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 	</article>
 	
 	<script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
-	<script src="js/script.js?v=4"></script>
+	<script src="js/script.js?v=6"></script>
 	<script>init();</script>
 	
 </body>
