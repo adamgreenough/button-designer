@@ -29,10 +29,18 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 	<meta name="twitter:creator" content="@addy_codes">
 	<meta name="twitter:image" content="https://button-designer.addy.codes/card.png">
 
-	<link href="css/style.css?v10" rel="stylesheet">
+	<!-- PWA -->
+	<link rel="manifest" href="/manifest.json">
+	<meta name="theme-color" content="#894bb8">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-title" content="Button Designer">
+	<link rel="apple-touch-icon" href="/button.png">
+
+	<link href="css/style.css?v=<?= filemtime(__DIR__ . '/css/style.css') ?>" rel="stylesheet">
 	
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" crossorigin="anonymous">
-	<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js" crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="css/vendor/choices.min.css">
+	<script src="js/vendor/choices.min.js"></script>
 	
 	<!-- Material Symbols -->
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" crossorigin="anonymous" />
@@ -44,7 +52,7 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 	
 	<!-- GIF parsing and export -->
 	<script src="/js/omggif.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.min.js"></script>
+	<script src="/js/vendor/gif.min.js"></script>
 	
 	<!-- Matomo -->
     <script>
@@ -77,18 +85,98 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 	
 	<div id="announcementBanner" class="announcement-banner">
 		<div class="banner-content">
-<span class="banner-text"><strong>🆕 Jan 2026 Update:</strong> Animated GIF background support <span class="sep">|</span> 650+ searchable Material icons <span class="sep">|</span> Letter spacing & line height <span class="sep">|</span> Text shadows & transforms <span class="sep">|</span> 144px or 288px HD export <span class="sep">|</span> 25+ Google Fonts 🎉</span>
-			<span class="banner-text"><strong>🆕 Jan 2026 Update:</strong> Animated GIF background support <span class="sep">|</span> 650+ searchable Material icons <span class="sep">|</span> Letter spacing & line height <span class="sep">|</span> Text shadows & transforms <span class="sep">|</span> 144px or 288px HD export <span class="sep">|</span> 25+ Google Fonts 🎉</span>
+<span class="banner-text"><strong>🆕 Feb 2026:</strong> Templates &amp; Presets with shareable links <span class="sep">|</span> Animated GIF backgrounds <span class="sep">|</span> 650+ Material icons <span class="sep">|</span> Text effects <span class="sep">|</span> HD export 🎉</span>
+			<span class="banner-text"><strong>🆕 Feb 2026:</strong> Templates &amp; Presets with shareable links <span class="sep">|</span> Animated GIF backgrounds <span class="sep">|</span> 650+ Material icons <span class="sep">|</span> Text effects <span class="sep">|</span> HD export 🎉</span>
 		</div>
 		<button class="banner-dismiss" onclick="dismissBanner()" title="Dismiss"><span class="material-symbols-outlined">close</span></button>
+	</div>
+
+	<!-- PWA Install Prompt -->
+	<div id="pwaInstallPrompt" class="pwa-install-prompt hidden">
+		<div class="pwa-install-content">
+			<img src="/button.png" alt="Button Designer" class="pwa-icon">
+			<div class="pwa-text">
+				<strong>Install Button Designer</strong>
+				<span>Add to your home screen for quick access and app-like experience</span>
+			</div>
+		</div>
+		<div class="pwa-actions">
+			<button id="pwaInstallBtn" class="pwa-install-btn">Install</button>
+			<button id="pwaDismissBtn" class="pwa-dismiss-btn" title="Dismiss"><span class="material-symbols-outlined">close</span></button>
+		</div>
 	</div>
 	
 	<main>
 		<section id="controls">
 			<div class="controls-tabs">
 			
+			<!-- TEMPLATES SECTION -->
+			<details id="templatesSection" open>
+				<summary><span class="material-symbols-outlined">dashboard_customize</span> Templates</summary>
+				<div class="control-group templates-panel">
+					<!-- Template notification banner -->
+					<div id="templateNotification" class="template-notification">
+						<span class="material-symbols-outlined">info</span>
+						<span id="templateNotificationText"></span>
+						<button class="notification-dismiss" onclick="dismissTemplateNotification()">
+							<span class="material-symbols-outlined">close</span>
+						</button>
+					</div>
+					
+					<!-- Save current design -->
+					<div class="template-save-section">
+						<button id="saveTemplateBtn" class="btn-save-template" onclick="openSaveTemplateModal()">
+							<span class="material-symbols-outlined">bookmark_add</span>
+							Save Current Design
+						</button>
+						<button id="copyPermalinkBtn" class="btn-permalink" onclick="copyPermalink()" title="Copy shareable link to clipboard">
+							<span class="material-symbols-outlined">link</span>
+						</button>
+					</div>
+					
+					<!-- User saved templates -->
+					<details class="sub-details" id="userTemplatesSection">
+						<summary style="display:flex;align-items:center;gap:.5rem">
+							<span class="material-symbols-outlined">folder_special</span>
+							<span>My Saved Templates</span>
+							<span id="userTemplateCount" class="template-count">0</span>
+						</summary>
+						<div class="sub-control-group">
+							<div class="storage-warning">
+								<span class="material-symbols-outlined">warning</span>
+									<span>Templates are stored in your browser's local storage. They may be lost if you clear site data. Use the <strong>link button</strong> to create a bookmarkable, shareable URL.</span>
+							</div>
+								<div class="templates-section">
+									<div class="templates-section-inner">
+										<div id="userTemplatesGrid" class="templates-grid">
+											<div class="no-templates">No saved templates yet. Save your current design above!</div>
+										</div>
+									</div>
+							</div>
+						</div>
+					</details>
+					
+					<!-- Default templates -->
+					<details class="sub-details" open>
+						<summary>
+							<span class="material-symbols-outlined">auto_awesome</span>
+							Starter Templates
+						</summary>
+						<div class="sub-control-group">
+								<div class="templates-section">
+									<div class="templates-section-inner">
+										<div id="defaultTemplatesGrid" class="templates-grid">
+											<!-- Default templates will be rendered here by JS -->
+										</div>
+									</div>
+							</div>
+						</div>
+					</details>
+				</div>
+			</details>
+			
 			<!-- TEXT SECTION -->
-			<details open>
+			<details>
 				<summary><span class="material-symbols-outlined">text_fields</span> Text</summary>
 				<div class="control-group">
 					<div class="control-row">
@@ -260,6 +348,7 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 							<option value="md" selected>Material Symbols</option>
 							<option value="char">Emoji/Character</option>
 							<option value="upload">Upload Image/GIF</option>
+							<option value="url">External Image URL</option>
 						</select>
 					</div>
 					
@@ -327,11 +416,33 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 						</a>
 					</div>
 					
+					<div class="urlIconOptions">
+						<div class="control-row">
+							<label for="iconUrlControl">
+								<span class="material-symbols-outlined">link</span>
+								Image URL
+							</label>
+							<input type="url" id="iconUrlControl" oninput="controlIconType()" placeholder="https://example.com/icon.png">
+							<span class="input-hint">Enter a direct link to an image (PNG, JPEG, GIF, WebP)</span>
+						</div>
+					</div>
+					
 					<!-- Icon Effects -->
 					<div class="charIconOptions uploadIconOptions mdIconOptions">
 						<details class="sub-details">
 							<summary><span class="material-symbols-outlined">tune</span> Icon Effects</summary>
 							<div class="sub-control-group">
+								<div class="control-row">
+									<label for="iconShadowControl">
+										<span class="material-symbols-outlined">blur_on</span>
+										Effect
+									</label>
+									<select id="iconShadowControl" default-choices onchange="controlIconEffects()">
+										<option value="none" selected>None</option>
+										<option value="shadow">Shadow</option>
+										<option value="glow">Glow</option>
+									</select>
+								</div>
 								<div class="control-row">
 									<label for="iconOpacityControl">
 										<span class="material-symbols-outlined">opacity</span>
@@ -401,7 +512,7 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 						</div>
 					</div>
 					<p class="icon-attribution">
-						Icons from <a href="https://fonts.google.com/icons\" target=\"_blank\" rel=\"noopener\">Google Material Symbols</a> (Apache 2.0 License)
+						Icons from <a href="https://fonts.google.com/icons" target="_blank" rel="noopener">Google Material Symbols</a> (<a href="https://github.com/google/material-design-icons/blob/master/LICENSE" target="_blank" rel="noopener">Apache 2.0 License</a>)
 					</p>
 				</div>
 			</details>
@@ -418,7 +529,8 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 						<select id="backgroundStyleControl" default-choices onchange="controlBackgroundStyle()">
 							<option value="solid" selected>Solid Colour</option>
 							<option value="gradient">Gradient</option>
-							<option value="image">Image/Animated GIF</option>
+							<option value="image">Upload Image/GIF</option>
+
 						</select>
 					</div>
 					
@@ -473,6 +585,18 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 							<input type="file" id="backgroundImageControl" accept="image/png,image/jpeg,image/svg+xml,image/gif,image/webp" onchange="controlBackgroundStyle()">
 							<span class="input-hint">Supports: PNG, JPEG, SVG, GIF, WebP</span>
 							<span class="input-hint privacy-hint"><span class="material-symbols-outlined">lock</span> Your images stay private — processed in your browser, never uploaded</span>
+						</div>
+					</div>
+					
+					<div id="backgroundOverlayOptions" style="margin-top: 1rem;">
+						<div class="control-row">
+							<label for="backgroundOverlayControl">
+								<span class="material-symbols-outlined">tonality</span>
+								Dark Overlay
+								<span class="range-value" id="backgroundOverlayValue">0%</span>
+							</label>
+							<input type="range" id="backgroundOverlayControl" min="0" max="0.8" step="0.05" value="0" oninput="controlBackgroundOverlay()">
+							<span class="input-hint">Darken the background to improve text readability</span>
 						</div>
 					</div>
 				</div>
@@ -535,12 +659,14 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 							<optgroup label="Gloss & Highlights">
 								<option value="gloss-over.png">Gloss</option>
 								<option value="gloss-diagonal.png">Gloss (Diagonal)</option>
+								<option value="jelly.png">Jelly</option>
 								<option value="spotlight.png">Spotlight</option>
 								<option value="corner-glow.png">Corner Glow</option>
 							</optgroup>
 							<optgroup label="Shadows & Depth">
 								<option value="vignette.png">Vignette</option>
 								<option value="inner-shadow.png">Inner Shadow</option>
+								<option value="disabled.png">Disabled / Dimmed</option>
 							</optgroup>
 							<optgroup label="Textures">
 								<option value="noise.png">Film Grain</option>
@@ -600,7 +726,7 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 				</button>
 				<div id="gifExportNote" class="gif-note" style="display: none;">
 					<span class="material-symbols-outlined">gif_box</span>
-					Animated GIF detected - will export as GIF
+					Animated GIF detected — will export as animated GIF
 				</div>
 				<a class="tip-jar" href="https://ko-fi.com/addycodes" target="_blank" rel="noopener noreferrer">
 					<span class="material-symbols-outlined">volunteer_activism</span>
@@ -614,6 +740,7 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 			<div id="preview-button-container">
 				<div id="preview-button">
 					<div id="buttonBackground"></div>
+					<div id="backgroundDarkOverlay"></div>
 					<div id="buttonIcon">
 						<div id="buttonIconInner"></div>
 					</div>
@@ -622,9 +749,16 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 					<div id="buttonBadge" class="status-badge" style="display: none;"></div>
 				</div>
 			</div>
-			<button id="resetButton" class="reset-btn" onclick="resetToDefaults()" title="Reset to defaults">
-				<span class="material-symbols-outlined">restart_alt</span>
-			</button>
+			<div class="preview-actions">
+				<button id="previewPermalinkBtn" class="preview-action-btn" onclick="copyPermalink()">
+					<span class="material-symbols-outlined">link</span>
+					<span class="tooltip">Copy shareable link</span>
+				</button>
+				<button id="resetButton" class="preview-action-btn" onclick="resetToDefaults()">
+					<span class="material-symbols-outlined">restart_alt</span>
+					<span class="tooltip">Reset to defaults</span>
+				</button>
+			</div>
 		</section>
 	</main>
 	
@@ -646,20 +780,166 @@ if ($_SERVER['HTTP_HOST'] === 'stream-deck-button-designer.addy.codes') {
 			<li>Click the small arrow in the top right of the icon preview in the icons property pane, click "set from file" and then select your downloaded icon</li>
 		</ul>
 		<h3>Can I save my design for later?</h3>
-		<p>Kind of! This tool stores your most recent design in your browser’s local storage, so it should usually be remembered when you come back on the same device/browser. If you clear your site data/cache, use a different browser/device, or have privacy settings that wipe storage, it may not be available.</p>		<h3>Privacy & Security</h3>
+		<p><strong>Yes!</strong> Use the <strong>Templates</strong> panel to save your designs. You have two options:</p>
+		<ul>
+			<li><strong>Save to browser storage:</strong> Click "Save Current Design" to save templates locally. These are stored in your browser's local storage — convenient but may be lost if you clear site data or switch devices.</li>
+			<li><strong>Create a shareable link:</strong> Click the <strong>link icon</strong> next to the save button to copy a bookmarkable URL containing your entire design. Bookmark this link or share it with others!</li>
+		</ul>
+		<p><strong>Note about custom images:</strong> If your design uses an uploaded image (background or icon), the image itself cannot be stored in templates or URLs. The template will save with a placeholder, and you'll need to re-upload the image when loading the template. This is due to browser security restrictions and URL length limits.</p>
+		<h3>Privacy & Security</h3>
 		<p><strong>100% client-side processing:</strong> Your images are never uploaded to any server. All image processing, compositing, and exporting happens entirely in your browser using JavaScript. Your designs stay completely private on your device.</p>
 		<p>The only data stored is your design settings in your browser's local storage — this never leaves your device. We use privacy-friendly analytics (Matomo) to count page views, but no personal data or images are ever collected or transmitted.</p>		<h3>App Information</h3>
 		<p><strong>Unofficial / independent:</strong> This is a community-made tool for creating button icons that are Stream Deck-compatible. It is not affiliated with, endorsed by, sponsored by, or otherwise approved by Corsair, <a href="https://www.elgato.com/uk/en/s/welcome-to-stream-deck" target="_blank" rel="noopener noreferrer">Elgato</a>, or the Stream Deck brand.</p>
 		<p>“Stream Deck” and “Elgato” are trademarks of their respective owners. They are used here only to describe compatibility and the intended use of the tool.</p>
 		<p>This website does not include or redistribute any Elgato software or proprietary assets — it simply helps you generate image files you can import into the Stream Deck software.</p>
 		<p><strong>No warranty:</strong> This tool is provided “as is” and “as available”, without warranties of any kind (express or implied), including but not limited to merchantability, fitness for a particular purpose, and non-infringement. You use it at your own risk. To the maximum extent permitted by law, the author is not liable for any claim, damages, or other liability arising from your use of the tool.</p>
-		<p>Lovingly made by <a href="https://addy.codes">Addy Codes</a> using icons from <a href="https://fonts.google.com/icons">Google Material Symbols</a> (Apache 2.0 License).</p>
+		<p>Lovingly made by <a href="https://addy.codes">Addy Codes</a> using icons from <a href="https://fonts.google.com/icons">Google Material Symbols</a> (<a href="https://github.com/google/material-design-icons/blob/master/LICENSE" target="_blank" rel="noopener">Apache 2.0 License</a>).</p>
 		<p>If you've found this helpful, please consider <a href="https://ko-fi.com/addycodes" target="_blank" rel="noopener noreferrer">supporting me on Ko-fi</a> to fund more caffeine-fuelled development. To <a href="https://github.com/adamgreenough/button-designer">report a bug or request a feature</a>, please visit the <a href="https://github.com/adamgreenough/button-designer">GitHub code repository</a>.</p>
 	</article>
+
+	<!-- PWA Footer Install Banner -->
+	<div id="pwaFooterBanner" class="pwa-footer-banner hidden">
+		<div class="pwa-footer-content">
+			<span class="material-symbols-outlined">install_desktop</span>
+			<span>Install <strong>Button Designer</strong> as an app for quick access</span>
+		</div>
+		<button id="pwaFooterInstallBtn" class="pwa-footer-install-btn">Install App</button>
+	</div>
 	
-	<script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
-	<script src="js/script.js?v=6"></script>
+	<!-- Save Template Modal -->
+	<div id="saveTemplateModal" class="modal-overlay hidden">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3><span class="material-symbols-outlined">bookmark_add</span> Save Template</h3>
+				<button class="modal-close" onclick="closeSaveTemplateModal()">
+					<span class="material-symbols-outlined">close</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<div class="control-row">
+					<label for="templateNameInput">
+						<span class="material-symbols-outlined">label</span>
+						Template Name
+					</label>
+					<input type="text" id="templateNameInput" placeholder="e.g., My Gaming Button" maxlength="50">
+				</div>
+				<div id="customImageWarning" class="custom-image-warning hidden">
+					<span class="material-symbols-outlined">image_not_supported</span>
+					<div>
+						<strong>Custom image detected</strong>
+						<p>Your design uses an uploaded image. The template will save with a transparent placeholder. You'll need to re-upload the image when loading this template.</p>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn-secondary" onclick="closeSaveTemplateModal()">Cancel</button>
+				<button class="btn-primary-modal" onclick="saveTemplate()">
+					<span class="material-symbols-outlined">save</span>
+					Save Template
+				</button>
+			</div>
+		</div>
+	</div>
+	
+	<script src="/js/vendor/html-to-image.min.js"></script>
+	<script src="js/script.js?v=<?= filemtime(__DIR__ . '/js/script.js') ?>"></script>
 	<script>init();</script>
+	
+	<!-- PWA Service Worker & Install Prompt -->
+	<script>
+		// Register Service Worker
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.register('/sw.js')
+				.then(reg => console.log('Service Worker registered'))
+				.catch(err => console.log('Service Worker registration failed:', err));
+		}
+
+		// Check if running as PWA (standalone mode)
+		const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+		                     window.navigator.standalone || 
+		                     document.referrer.includes('android-app://');
+
+		// Track PWA launch in Matomo
+		if (isStandalone) {
+			if (typeof _paq !== 'undefined') {
+				_paq.push(['trackEvent', 'PWA', 'Booted', 'App opened in standalone mode']);
+			}
+			console.log('Running as PWA');
+		}
+
+		// PWA Install Prompt
+		let deferredPrompt;
+		const pwaPrompt = document.getElementById('pwaInstallPrompt');
+		const pwaInstallBtn = document.getElementById('pwaInstallBtn');
+		const pwaDismissBtn = document.getElementById('pwaDismissBtn');
+		const pwaFooterBanner = document.getElementById('pwaFooterBanner');
+		const pwaFooterInstallBtn = document.getElementById('pwaFooterInstallBtn');
+
+		// Hide PWA prompts if already running as PWA
+		if (isStandalone) {
+			pwaPrompt?.classList.add('hidden');
+			pwaFooterBanner?.classList.add('hidden');
+		}
+
+		// Check if user previously dismissed the prompt
+		const pwaDismissed = localStorage.getItem('pwa-prompt-dismissed');
+
+		window.addEventListener('beforeinstallprompt', (e) => {
+			e.preventDefault();
+			deferredPrompt = e;
+			
+			// Don't show prompts if already in standalone mode
+			if (isStandalone) return;
+			
+			// Always show footer banner when installable
+			pwaFooterBanner.classList.remove('hidden');
+			
+			// Show floating prompt after a delay if not dismissed
+			if (!pwaDismissed) {
+				setTimeout(() => {
+					pwaPrompt.classList.remove('hidden');
+				}, 10000);
+			}
+		});
+
+		async function handlePwaInstall() {
+			if (!deferredPrompt) return;
+			
+			deferredPrompt.prompt();
+			const { outcome } = await deferredPrompt.userChoice;
+			
+			if (outcome === 'accepted') {
+				console.log('PWA installed');
+				// Track PWA install in Matomo
+				if (typeof _paq !== 'undefined') {
+					_paq.push(['trackEvent', 'PWA', 'Installed', 'User accepted install prompt']);
+				}
+			}
+			
+			deferredPrompt = null;
+			pwaPrompt.classList.add('hidden');
+			pwaFooterBanner.classList.add('hidden');
+		}
+
+		pwaInstallBtn?.addEventListener('click', handlePwaInstall);
+		pwaFooterInstallBtn?.addEventListener('click', handlePwaInstall);
+
+		pwaDismissBtn?.addEventListener('click', () => {
+			pwaPrompt.classList.add('hidden');
+			localStorage.setItem('pwa-prompt-dismissed', 'true');
+		});
+
+		// Hide prompt if app is already installed
+		window.addEventListener('appinstalled', () => {
+			pwaPrompt.classList.add('hidden');
+			pwaFooterBanner.classList.add('hidden');
+			deferredPrompt = null;
+			// Track PWA install in Matomo
+			if (typeof _paq !== 'undefined') {
+				_paq.push(['trackEvent', 'PWA', 'Installed', 'App installed successfully']);
+			}
+		});
+	</script>
 	
 </body>
 </html>

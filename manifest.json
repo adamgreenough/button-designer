@@ -1,0 +1,27 @@
+{
+  "name": "Button Designer",
+  "short_name": "Button Designer",
+  "description": "Create custom button icons for Stream Deck and similar devices",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f0f",
+  "theme_color": "#894bb8",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/button.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/button.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["design", "graphics", "utilities"],
+  "lang": "en",
+  "dir": "ltr"
+}
